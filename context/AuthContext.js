@@ -19,9 +19,14 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
 
     // Initialize auth instance
-    const auth = getAuth(app);
+    const auth = app ? getAuth(app) : null;
 
     useEffect(() => {
+        if (!auth) {
+            setLoading(false);
+            return;
+        }
+
         const unsubscribe = onAuthStateChanged(auth, (user) => {
             if (user) {
                 setUser(user);
@@ -35,14 +40,17 @@ export const AuthProvider = ({ children }) => {
     }, [auth]);
 
     const signUp = (email, password) => {
+        if (!auth) return Promise.reject(new Error("Firebase not initialized"));
         return createUserWithEmailAndPassword(auth, email, password);
     };
 
     const signIn = (email, password) => {
+        if (!auth) return Promise.reject(new Error("Firebase not initialized"));
         return signInWithEmailAndPassword(auth, email, password);
     };
 
     const logOut = () => {
+        if (!auth) return Promise.reject(new Error("Firebase not initialized"));
         return signOut(auth);
     };
 
